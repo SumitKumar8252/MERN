@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, {useState, useEffect} from 'react'
+import axios from 'axios'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+function App(){
+  const [todos, setTodos]= useState([])
+  const [text , setText]= useState('')
+
+  useEffect(()=>{
+    fetchTodos()
+  }, [])
+
+  const fetchTodos= async()=>{
+    const res= await axios.get("")
+    setTodos(res.data)
+  }
+
+  const addTodo= async()=>{
+    if(!text) return `Error found `
+    const res= await axios.post("", {text})
+    setTodos([...todos, res.data])
+    setText("")
+  }
+
+  const toggleTodo= async(id)=>{
+    const res= await axios.put(`${id}`)
+    setTodos(todos.map((t)=> (t._id === id? res.data: t)))
+  }
+
+  const deleteTodo= async (id)=>{
+    await axios.delete(`${id}`)
+    setTodos(todos.filter((t)=> t._id !==id))
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div style={{maxWidth: "400px", margin: 'auto', padding: "20px"}}>
+      <h1>Todo App</h1>
+      <input value={text} onChange={(e)=> setText(e.target.value)} placeholder='Enter Todo' />
+      <button onClick={addTodo}>Add</button>
+    </div>
   )
 }
 
-export default App
+export default App;
